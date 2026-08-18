@@ -1,0 +1,28 @@
+# Environment
+.env
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+
+# Vector database
+vector_db/
+
+# Uploaded/raw documents
+data/raw/
+
+# Generated/processed data
+data/extracted/
+data/processed/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
