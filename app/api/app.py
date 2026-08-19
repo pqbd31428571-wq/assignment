@@ -1,3 +1,15 @@
+import os
+
+# Must run before torch is imported anywhere (RAGDependencies pulls in
+# sentence-transformers -> torch). Disables torch.compile/dynamo JIT
+# compilation, which requires a C++ compiler (cl.exe on Windows) that
+# isn't installed here. Docling's layout model still runs fine in
+# eager mode without it.
+os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
+
+import torch
+torch._dynamo.config.disable = True
+
 from fastapi import FastAPI
 
 from app.api.routes import router

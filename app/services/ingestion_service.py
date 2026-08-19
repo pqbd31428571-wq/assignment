@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Callable, List, Optional, Tuple
 
 from app.models.document import Document
 from app.parsers.parser_factory import ParserFactory
@@ -19,16 +20,25 @@ class IngestionService:
 
     def ingest_directory(
         self,
-        directory: Path
-    ) -> list[Document]:
+        directory: Path,
+        skip_if: Optional[Callable[[Path], bool]] = None,
+    ) -> List[Document]:
         """
-        Find and parse all supported documents inside a directory.
+        Find and parse all supported documents inside a directory
+        (including subfolders, e.g. data/raw/pdf, data/raw/jpg).
 
         Args:
             directory: Directory containing input documents.
+            skip_if: Optional predicate(file_path) -> bool. If it
+                returns True, the file is skipped BEFORE parsing —
+                so re-running bulk ingestion after adding a few new
+                files doesn't re-OCR the ~100 already-indexed ones,
+                only the new ones.
 
         Returns:
-            List of parsed Document objects.
+            List of successfully parsed Document objects. Files that
+            fail to parse are logged and skipped rather than aborting
+            the whole batch.
         """
 
         directory = Path(directory)
@@ -38,26 +48,36 @@ class IngestionService:
                 f"Directory not found: {directory}"
             )
 
-        documents = []
+        documents: List[Document] = []
+        failed_files: List[Tuple[Path, str]] = []
 
-        for file_path in sorted(directory.rglob("*")):
+        files = sorted(
+            file_path
+            for file_path in directory.rglob("*")
+            if file_path.is_file()
+            and file_path.suffix.lower() in self.SUPPORTED_EXTENSIONS
+        )
 
-            # Ignore directories
-            if not file_path.is_file():
-                continue
+        for file_path in files:
 
-            # Ignore unsupported files
-            if file_path.suffix.lower() not in self.SUPPORTED_EXTENSIONS:
+            if skip_if and skip_if(file_path):
+                print(f"Skipping already indexed: {file_path.name}")
                 continue
 
             print(f"Processing: {file_path}")
 
-            # Get appropriate parser
-            parser = ParserFactory.create(file_path)
+            try:
+                parser = ParserFactory.create(file_path)
+                document = parser.parse(file_path)
+                documents.append(document)
 
-            # Parse the document
-            document = parser.parse(file_path)
+            except Exception as exc:
+                print(f"Failed to parse {file_path.name}: {exc}")
+                failed_files.append((file_path, str(exc)))
 
-            documents.append(document)
+        if failed_files:
+            print(f"\n{len(failed_files)} file(s) failed to parse:")
+            for path, error in failed_files:
+                print(f"  - {path.name}: {error}")
 
         return documents

@@ -1,7 +1,12 @@
+import os
+
+os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
+
+import torch
+torch._dynamo.config.disable = True
+
 from pathlib import Path
-
 from docling.document_converter import DocumentConverter
-
 from app.models.document import Document
 from .base_parser import BaseParser
 
@@ -10,13 +15,7 @@ class DoclingParser(BaseParser):
     """
     Parser for PDF, JPG, JPEG, and PNG documents using Docling.
     """
-
-    SUPPORTED_EXTENSIONS = {
-        ".pdf",
-        ".jpg",
-        ".jpeg",
-        ".png",
-    }
+    SUPPORTED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png"}
 
     def __init__(self):
         self.converter = DocumentConverter()
@@ -47,7 +46,12 @@ class DoclingParser(BaseParser):
             )
 
         # 3. Process the document using Docling
-        result = self.converter.convert(str(file_path))
+        try:
+            result = self.converter.convert(str(file_path))
+        except Exception as exc:
+            raise RuntimeError(
+                f"Docling failed to convert {file_path.name}: {exc}"
+            ) from exc
 
         # 4. Get the converted document
         document = result.document
