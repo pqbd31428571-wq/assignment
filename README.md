@@ -129,3 +129,11 @@ asmt/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+
+# to Run ............................................
+IN CMD 1 :
+  >> .venv\Scripts\actiavte.bat
+  >> uvicorn app.api.app:app 
+IN CMD 2 :
+  >> .venv\Scripts\activate.bat
+  >> streamlit run streamlit_app.py
