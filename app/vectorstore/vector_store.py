@@ -21,6 +21,11 @@ class VectorStore:
 
     VECTOR_SIZE = 768
 
+    # Upsert in pages so bulk-ingesting ~100 documents' worth of
+    # chunks (via /ingest-directory) never sends one oversized
+    # request to Qdrant in a single call.
+    UPSERT_BATCH_SIZE = 256
+
     def __init__(
         self,
         storage_path: str = "vector_db"
@@ -37,10 +42,6 @@ class VectorStore:
         self._create_collection()
 
     def _create_collection(self):
-        """
-        Create the vector collection if it does not exist.
-        """
-
         collections = self.client.get_collections()
 
         collection_names = [
@@ -63,14 +64,13 @@ class VectorStore:
         chunks: list[DocumentChunk],
         embeddings
     ):
-        """
-        Store document chunks and embeddings.
-        """
-
         if len(chunks) != len(embeddings):
             raise ValueError(
                 "Number of chunks and embeddings must match."
             )
+
+        if not chunks:
+            return
 
         points = []
 
@@ -78,8 +78,6 @@ class VectorStore:
             chunks,
             embeddings
         ):
-
-            # Stable ID based on chunk ID
             point_id = str(
                 uuid5(
                     NAMESPACE_DNS,
@@ -100,20 +98,18 @@ class VectorStore:
 
             points.append(point)
 
-        self.client.upsert(
-            collection_name=self.COLLECTION_NAME,
-            points=points,
-        )
+        for start in range(0, len(points), self.UPSERT_BATCH_SIZE):
+            batch = points[start:start + self.UPSERT_BATCH_SIZE]
+            self.client.upsert(
+                collection_name=self.COLLECTION_NAME,
+                points=batch,
+            )
 
     def search(
         self,
         query_embedding,
         limit: int = 5
     ):
-        """
-        Search for the most relevant chunks.
-        """
-
         results = self.client.query_points(
             collection_name=self.COLLECTION_NAME,
             query=query_embedding.tolist(),
@@ -124,8 +120,4 @@ class VectorStore:
         return results.points
 
     def close(self):
-        """
-        Close the Qdrant client.
-        """
-
         self.client.close()

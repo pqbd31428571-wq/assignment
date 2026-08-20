@@ -7,12 +7,11 @@ API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(
     page_title="Document RAG Assistant",
-    page_icon="📚",
     layout="wide"
 )
 
 
-st.title("📚 Document RAG Assistant")
+st.title(" Document RAG Assistant")
 
 st.write(
     "Upload your documents and ask questions "
@@ -109,6 +108,46 @@ if st.button("Process Documents"):
         )
 
 
+st.divider()
+st.subheader("bulk-ingest files already placed in data")
+
+if st.button("Ingest All"):
+
+    with st.spinner(
+        "Scanning data/raw/ and indexing new files — this can take "
+        "a while for a large batch..."
+    ):
+
+        try:
+
+            response = requests.post(
+                f"{API_URL}/ingest-directory",
+                timeout=3600
+            )
+
+            if response.status_code == 200:
+
+                result = response.json()
+
+                st.success(
+                    f"Found {result['documents_found']} new document(s), "
+                    f"indexed {result['chunks_indexed']} chunks. "
+                    f"{result['message']}"
+                )
+
+            else:
+
+                st.error(
+                    f"Bulk ingestion failed: {response.text}"
+                )
+
+        except requests.RequestException as exc:
+
+            st.error(
+                f"Could not connect to API. {exc}"
+            )
+
+st.divider()
 # --------------------------------------------------
 # QUESTION ANSWERING
 # --------------------------------------------------

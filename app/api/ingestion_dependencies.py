@@ -29,9 +29,18 @@ class IngestionDependencies:
 
         self.text_cleaner = TextCleaner()
 
+        # Raised from 1000/150. Dense infographics/tables (like an
+        # OSI-model diagram) export as ONE unbroken block of text
+        # since the chunker only splits on blank lines, and rows are
+        # single-newline separated. A too-small chunk_size cuts that
+        # block mid-table, separating a row's label from its data.
+        # 1800 keeps most single-page tables intact while staying
+        # under bge-base-en-v1.5's ~512 token (~2000 char) embedding
+        # window, so the embedding still "sees" the whole chunk
+        # instead of silently truncating it.
         self.text_chunker = TextChunker(
-            chunk_size=1000,
-            chunk_overlap=150
+            chunk_size=1800,
+            chunk_overlap=250
         )
 
         self.embedding_service = EmbeddingService()

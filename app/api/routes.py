@@ -61,7 +61,7 @@ async def ingest_document(
     file: UploadFile = File(...)
 ):
     """
-    Upload and index a PDF or image document.
+    Upload and index a single PDF or image document.
     """
 
     if not file.filename:
@@ -99,7 +99,6 @@ async def ingest_document(
 
             output_file.write(contents)
 
-        # Parse the uploaded document
         parser = ParserFactory.create(
             destination
         )
@@ -108,7 +107,6 @@ async def ingest_document(
             destination
         )
 
-        # Index the parsed document
         chunks_indexed = (
             ingestion.indexing_service.index_document(
                 document
@@ -127,7 +125,6 @@ async def ingest_document(
 
     except Exception as exc:
 
-        # Remove the file if processing failed
         if destination.exists():
             destination.unlink()
 
@@ -135,3 +132,45 @@ async def ingest_document(
             status_code=500,
             detail=f"Document processing failed: {exc}"
         )
+
+
+@router.post("/ingest-directory")
+def ingest_directory(request: Request):
+    """
+    Bulk-parse and index every supported file already sitting in
+    data/raw/ (and any subfolders, e.g. data/raw/pdf, data/raw/jpg,
+    data/raw/png). This is the entry point for loading the full
+    ~100-document dataset in one call instead of uploading one file
+    at a time — and it runs inside this same process, reusing the
+    already-loaded VectorStore, so it never conflicts with the
+    server's own connection to the local Qdrant storage.
+    """
+
+    ingestion = request.app.state.ingestion
+
+    documents = ingestion.ingestion_service.ingest_directory(
+        ingestion.raw_directory,
+        skip_if=ingestion.document_registry.is_indexed,
+    )
+
+    if not documents:
+        return {
+            "status": "success",
+            "documents_found": 0,
+            "chunks_indexed": 0,
+            "message": (
+                "No new supported files found in data/raw/ "
+                "(everything already indexed, or the folder is empty)."
+            ),
+        }
+
+    chunks_indexed = ingestion.indexing_service.index_documents(
+        documents
+    )
+
+    return {
+        "status": "success",
+        "documents_found": len(documents),
+        "chunks_indexed": chunks_indexed,
+        "message": "Bulk ingestion complete.",
+    }

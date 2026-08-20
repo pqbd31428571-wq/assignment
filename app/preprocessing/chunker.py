@@ -54,7 +54,6 @@ class TextChunker:
 
         for paragraph in paragraphs:
 
-            # If the paragraph fits in the current chunk
             candidate = (
                 f"{current_text}\n\n{paragraph}"
                 if current_text
@@ -65,7 +64,6 @@ class TextChunker:
                 current_text = candidate
                 continue
 
-            # Save the current chunk
             if current_text:
                 chunks.append(
                     self._create_chunk(
@@ -77,18 +75,14 @@ class TextChunker:
 
                 chunk_number += 1
 
-            # Create overlap from the previous chunk
             overlap_text = current_text[
                 -self.chunk_overlap:
             ]
 
-            # Start new chunk with overlap
             current_text = (
                 f"{overlap_text}\n\n{paragraph}"
             ).strip()
 
-            # If the paragraph itself is too large,
-            # split it into smaller pieces.
             if len(current_text) > self.chunk_size:
                 large_parts = self._split_large_text(
                     current_text
@@ -106,7 +100,6 @@ class TextChunker:
 
                 current_text = large_parts[-1]
 
-        # Store final chunk
         if current_text:
             chunks.append(
                 self._create_chunk(
@@ -124,25 +117,38 @@ class TextChunker:
     ) -> list[str]:
         """
         Split text that is larger than the chunk size.
+
+        Splits at the nearest whitespace before the chunk_size
+        boundary rather than an arbitrary character index, so a word
+        (or a table cell like "TCP, UDP, SCTP") isn't cut in half by
+        landing exactly on the size limit.
         """
 
         parts = []
-
         start = 0
 
         while start < len(text):
 
             end = start + self.chunk_size
 
-            part = text[start:end].strip()
+            if end < len(text):
+                boundary = text.rfind(" ", start, end)
+                if boundary == -1 or boundary <= start:
+                    boundary = end
+            else:
+                boundary = len(text)
+
+            part = text[start:boundary].strip()
 
             if part:
                 parts.append(part)
 
-            if end >= len(text):
+            if boundary >= len(text):
                 break
 
-            start = end - self.chunk_overlap
+            start = boundary - self.chunk_overlap
+            if start < 0:
+                start = 0
 
         return parts
 
