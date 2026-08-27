@@ -42,7 +42,7 @@ def ask_question(request: Request, question_request: QuestionRequest):
     try:
         result = rag_pipeline.answer(
             question=question_request.question,
-            retrieval_k=10,
+            retrieval_k=6,
             final_k=5
         )
     except Exception:

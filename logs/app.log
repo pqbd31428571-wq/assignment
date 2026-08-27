@@ -51,3 +51,51 @@
 2026-08-27 12:01:47 | INFO     | app.rag.rag_pipeline | Timings for 'what to do if you get sick' -> retrieve: 139ms, rerank: 4843ms, generate: 844ms, total: 5826ms
 2026-08-27 12:01:47 | INFO     | app.api.routes | Answered with 5 source(s) for question: what to do if you get sick
 2026-08-27 12:01:47 | INFO     | app.api.app | POST /ask -> 200 (5834.8ms)
+2026-08-27 16:44:03 | INFO     | app.api.app | Creating VectorStore...
+2026-08-27 16:44:03 | INFO     | app.api.app | Loading RAG dependencies...
+2026-08-27 16:44:03 | INFO     | app.rag.dependencies | Loading RAG components...
+2026-08-27 16:44:03 | INFO     | app.embeddings.embedding_service | Loading embedding model 'BAAI/bge-base-en-v1.5' on device 'cpu'...
+2026-08-27 16:44:04 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-27 16:44:04 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 16:44:09 | INFO     | app.embeddings.embedding_service | Embedding model ready.
+2026-08-27 16:44:09 | INFO     | app.retrieval.reranker | Loading reranker model 'BAAI/bge-reranker-base' on device 'cpu' (max_length=384)...
+2026-08-27 16:44:09 | INFO     | sentence_transformers.base.model | No modules.json found for BAAI/bge-reranker-base, initializing a new CrossEncoder model.
+2026-08-27 16:44:16 | INFO     | app.retrieval.reranker | Reranker ready.
+2026-08-27 16:44:16 | INFO     | app.llm.llm_service | GroqLLM initialized with model 'openai/gpt-oss-20b'
+2026-08-27 16:44:16 | INFO     | app.rag.dependencies | RAG components loaded successfully.
+2026-08-27 16:44:16 | INFO     | app.api.app | Loading ingestion dependencies...
+2026-08-27 16:44:16 | INFO     | app.api.ingestion_dependencies | Loading ingestion components...
+2026-08-27 16:44:16 | INFO     | app.embeddings.embedding_service | Loading embedding model 'BAAI/bge-base-en-v1.5' on device 'cpu'...
+2026-08-27 16:44:17 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 16:44:21 | INFO     | app.embeddings.embedding_service | Embedding model ready.
+2026-08-27 16:44:21 | INFO     | app.services.document_registry | Loaded document registry: 76 entrie(s).
+2026-08-27 16:44:21 | INFO     | app.api.ingestion_dependencies | Ingestion components loaded successfully.
+2026-08-27 16:44:21 | INFO     | app.api.app | Application startup complete.
+2026-08-27 16:45:22 | INFO     | app.api.routes | Question received: chemical formula of water
+2026-08-27 16:45:23 | INFO     | app.retrieval.retriever | Retrieved 6 candidate(s) for query: chemical formula of water
+2026-08-27 16:45:28 | INFO     | app.retrieval.reranker | Reranked 6 candidate(s) down to top 5.
+2026-08-27 16:45:28 | INFO     | app.llm.llm_service | Groq generated a 51-character response.
+2026-08-27 16:45:28 | INFO     | app.rag.rag_pipeline | Timings for 'chemical formula of water' -> retrieve: 1407ms, rerank: 4326ms, generate: 683ms, total: 6417ms
+2026-08-27 16:45:28 | INFO     | app.api.routes | Answered with 5 source(s) for question: chemical formula of water
+2026-08-27 16:45:28 | INFO     | app.api.app | POST /ask -> 200 (6430.5ms)
+2026-08-27 16:46:29 | INFO     | app.api.routes | Question received: what to do if you get sick
+2026-08-27 16:46:29 | INFO     | app.retrieval.retriever | Retrieved 6 candidate(s) for query: what to do if you get sick
+2026-08-27 16:46:31 | INFO     | app.retrieval.reranker | Reranked 6 candidate(s) down to top 5.
+2026-08-27 16:46:32 | INFO     | app.llm.llm_service | Groq generated a 553-character response.
+2026-08-27 16:46:32 | INFO     | app.rag.rag_pipeline | Timings for 'what to do if you get sick' -> retrieve: 74ms, rerank: 2377ms, generate: 862ms, total: 3313ms
+2026-08-27 16:46:32 | INFO     | app.api.routes | Answered with 5 source(s) for question: what to do if you get sick
+2026-08-27 16:46:32 | INFO     | app.api.app | POST /ask -> 200 (3321.2ms)
+2026-08-27 16:49:58 | INFO     | app.api.routes | Question received: what is the chemical formula of water
+2026-08-27 16:49:58 | INFO     | app.retrieval.retriever | Retrieved 6 candidate(s) for query: what is the chemical formula of water
+2026-08-27 16:50:00 | INFO     | app.retrieval.reranker | Reranked 6 candidate(s) down to top 5.
+2026-08-27 16:50:01 | INFO     | app.llm.llm_service | Groq generated a 51-character response.
+2026-08-27 16:50:01 | INFO     | app.rag.rag_pipeline | Timings for 'what is the chemical formula of water' -> retrieve: 70ms, rerank: 2088ms, generate: 622ms, total: 2780ms
+2026-08-27 16:50:01 | INFO     | app.api.routes | Answered with 5 source(s) for question: what is the chemical formula of water
+2026-08-27 16:50:01 | INFO     | app.api.app | POST /ask -> 200 (2787.2ms)
+2026-08-27 16:56:18 | INFO     | app.api.routes | Question received: what is the chemical formula of water
+2026-08-27 16:56:19 | INFO     | app.retrieval.retriever | Retrieved 6 candidate(s) for query: what is the chemical formula of water
+2026-08-27 16:56:21 | INFO     | app.retrieval.reranker | Reranked 6 candidate(s) down to top 5.
+2026-08-27 16:56:21 | INFO     | app.llm.llm_service | Groq generated a 51-character response.
+2026-08-27 16:56:21 | INFO     | app.rag.rag_pipeline | Timings for 'what is the chemical formula of water' -> retrieve: 78ms, rerank: 2221ms, generate: 572ms, total: 2871ms
+2026-08-27 16:56:21 | INFO     | app.api.routes | Answered with 5 source(s) for question: what is the chemical formula of water
+2026-08-27 16:56:21 | INFO     | app.api.app | POST /ask -> 200 (2877.7ms)
