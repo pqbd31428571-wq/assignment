@@ -1,5 +1,9 @@
+import logging
+
 from app.embeddings.embedding_service import EmbeddingService
 from app.vectorstore.vector_store import VectorStore
+
+logger = logging.getLogger(__name__)
 
 
 class Retriever:
@@ -13,47 +17,20 @@ class Retriever:
         embedding_service: EmbeddingService,
         vector_store: VectorStore
     ):
-        """
-        Initialize the retriever.
-
-        Args:
-            embedding_service: Service used to create query embeddings.
-            vector_store: Vector database used for similarity search.
-        """
-
         self.embedding_service = embedding_service
         self.vector_store = vector_store
 
-    def retrieve(
-        self,
-        query: str,
-        top_k: int = 5
-    ):
-        """
-        Retrieve the most relevant chunks for a query.
-
-        Args:
-            query: User's question.
-            top_k: Number of relevant chunks to retrieve.
-
-        Returns:
-            List of relevant search results.
-        """
-
+    def retrieve(self, query: str, top_k: int = 5):
         if not query or not query.strip():
-            raise ValueError(
-                "Query cannot be empty."
-            )
+            raise ValueError("Query cannot be empty.")
 
-        # Convert the user's question into an embedding
-        query_embedding = self.embedding_service.embed_text(
-            query
-        )
+        query_embedding = self.embedding_service.embed_text(query)
 
-        # Search the vector database
         results = self.vector_store.search(
             query_embedding=query_embedding,
             limit=top_k
         )
+
+        logger.info("Retrieved %d candidate(s) for query: %s", len(results), query)
 
         return results

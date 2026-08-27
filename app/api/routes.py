@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from fastapi import (
@@ -14,6 +15,8 @@ from app.api.schemas import (
 )
 from app.parsers.parser_factory import ParserFactory
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
@@ -27,52 +30,39 @@ SUPPORTED_EXTENSIONS = {
 
 @router.get("/health")
 def health_check():
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}
 
 
-@router.post(
-    "/ask",
-    response_model=AnswerResponse
-)
-def ask_question(
-    request: Request,
-    question_request: QuestionRequest
-):
-    """
-    Answer a question using the RAG pipeline.
-    """
+@router.post("/ask", response_model=AnswerResponse)
+def ask_question(request: Request, question_request: QuestionRequest):
+    logger.info("Question received: %s", question_request.question)
 
     rag_pipeline = request.app.state.rag
 
-    result = rag_pipeline.answer(
-        question=question_request.question,
-        retrieval_k=10,
-        final_k=5
+    try:
+        result = rag_pipeline.answer(
+            question=question_request.question,
+            retrieval_k=10,
+            final_k=5
+        )
+    except Exception:
+        logger.exception("Failed to answer question: %s", question_request.question)
+        raise HTTPException(status_code=500, detail="Failed to generate an answer.")
+
+    logger.info(
+        "Answered with %d source(s) for question: %s",
+        len(result["sources"]), question_request.question,
     )
 
     return result
 
 
 @router.post("/ingest")
-async def ingest_document(
-    request: Request,
-    file: UploadFile = File(...)
-):
-    """
-    Upload and index a single PDF or image document.
-    """
-
+async def ingest_document(request: Request, file: UploadFile = File(...)):
     if not file.filename:
-        raise HTTPException(
-            status_code=400,
-            detail="File name is missing."
-        )
+        raise HTTPException(status_code=400, detail="File name is missing.")
 
-    extension = Path(
-        file.filename
-    ).suffix.lower()
+    extension = Path(file.filename).suffix.lower()
 
     if extension not in SUPPORTED_EXTENSIONS:
         raise HTTPException(
@@ -84,33 +74,22 @@ async def ingest_document(
         )
 
     ingestion = request.app.state.ingestion
-
-    destination = (
-        ingestion.raw_directory /
-        Path(file.filename).name
-    )
+    destination = ingestion.raw_directory / Path(file.filename).name
 
     try:
         contents = await file.read()
 
-        with destination.open(
-            "wb"
-        ) as output_file:
-
+        with destination.open("wb") as output_file:
             output_file.write(contents)
 
-        parser = ParserFactory.create(
-            destination
-        )
+        parser = ParserFactory.create(destination)
+        document = parser.parse(destination)
 
-        document = parser.parse(
-            destination
-        )
+        chunks_indexed = ingestion.indexing_service.index_document(document)
 
-        chunks_indexed = (
-            ingestion.indexing_service.index_document(
-                document
-            )
+        logger.info(
+            "Uploaded and indexed %s: %d chunk(s)",
+            file.filename, chunks_indexed,
         )
 
         return {
@@ -118,12 +97,11 @@ async def ingest_document(
             "file_name": file.filename,
             "document_id": document.document_id,
             "chunks_indexed": chunks_indexed,
-            "message": (
-                "Document processed successfully."
-            )
+            "message": "Document processed successfully."
         }
 
     except Exception as exc:
+        logger.exception("Failed to process uploaded file: %s", file.filename)
 
         if destination.exists():
             destination.unlink()
@@ -136,15 +114,7 @@ async def ingest_document(
 
 @router.post("/ingest-directory")
 def ingest_directory(request: Request):
-    """
-    Bulk-parse and index every supported file already sitting in
-    data/raw/ (and any subfolders, e.g. data/raw/pdf, data/raw/jpg,
-    data/raw/png). This is the entry point for loading the full
-    ~100-document dataset in one call instead of uploading one file
-    at a time — and it runs inside this same process, reusing the
-    already-loaded VectorStore, so it never conflicts with the
-    server's own connection to the local Qdrant storage.
-    """
+    logger.info("Bulk ingestion triggered.")
 
     ingestion = request.app.state.ingestion
 
@@ -154,6 +124,7 @@ def ingest_directory(request: Request):
     )
 
     if not documents:
+        logger.info("Bulk ingestion found nothing new to process.")
         return {
             "status": "success",
             "documents_found": 0,
@@ -164,8 +135,11 @@ def ingest_directory(request: Request):
             ),
         }
 
-    chunks_indexed = ingestion.indexing_service.index_documents(
-        documents
+    chunks_indexed = ingestion.indexing_service.index_documents(documents)
+
+    logger.info(
+        "Bulk ingestion complete: %d document(s), %d chunk(s) indexed.",
+        len(documents), chunks_indexed,
     )
 
     return {

@@ -1,0 +1,53 @@
+2026-08-27 10:22:37 | INFO     | app.api.app | Creating VectorStore...
+2026-08-27 10:22:37 | INFO     | app.api.app | Loading RAG dependencies...
+2026-08-27 10:22:38 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-27 10:22:38 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 10:22:44 | INFO     | sentence_transformers.base.model | No modules.json found for BAAI/bge-reranker-base, initializing a new CrossEncoder model.
+2026-08-27 10:22:52 | INFO     | app.api.app | Loading ingestion dependencies...
+2026-08-27 10:22:53 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 10:22:59 | INFO     | app.api.app | Application startup complete.
+2026-08-27 11:04:16 | INFO     | app.api.app | Shutting down. Closing VectorStore.
+2026-08-27 11:07:20 | INFO     | app.api.app | Creating VectorStore...
+2026-08-27 11:07:20 | INFO     | app.api.app | Loading RAG dependencies...
+2026-08-27 11:07:21 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-27 11:07:21 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 11:07:28 | INFO     | sentence_transformers.base.model | No modules.json found for BAAI/bge-reranker-base, initializing a new CrossEncoder model.
+2026-08-27 11:07:37 | INFO     | app.api.app | Loading ingestion dependencies...
+2026-08-27 11:07:37 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 11:07:44 | INFO     | app.api.app | Application startup complete.
+2026-08-27 11:23:13 | INFO     | app.api.routes | Question received: what is definition
+2026-08-27 11:23:22 | INFO     | app.rag.rag_pipeline | Timings for 'what is definition' -> retrieve: 1299ms, rerank: 6797ms, generate: 768ms, total: 8864ms
+2026-08-27 11:23:22 | INFO     | app.api.routes | Answered with 5 source(s) for question: what is definition
+2026-08-27 11:23:22 | INFO     | app.api.app | POST /ask -> 200 (8876.3ms)
+2026-08-27 11:45:36 | INFO     | app.api.routes | Question received: what to do if you get sick
+2026-08-27 11:45:42 | INFO     | app.rag.rag_pipeline | Timings for 'what to do if you get sick' -> retrieve: 95ms, rerank: 4876ms, generate: 661ms, total: 5632ms
+2026-08-27 11:45:42 | INFO     | app.api.routes | Answered with 5 source(s) for question: what to do if you get sick
+2026-08-27 11:45:42 | INFO     | app.api.app | POST /ask -> 200 (5641.3ms)
+2026-08-27 11:55:30 | INFO     | app.api.app | Shutting down. Closing VectorStore.
+2026-08-27 12:00:40 | INFO     | app.api.app | Creating VectorStore...
+2026-08-27 12:00:40 | INFO     | app.api.app | Loading RAG dependencies...
+2026-08-27 12:00:40 | INFO     | app.rag.dependencies | Loading RAG components...
+2026-08-27 12:00:40 | INFO     | app.embeddings.embedding_service | Loading embedding model 'BAAI/bge-base-en-v1.5' on device 'cpu'...
+2026-08-27 12:00:41 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-27 12:00:41 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 12:00:48 | INFO     | app.embeddings.embedding_service | Embedding model ready.
+2026-08-27 12:00:48 | INFO     | app.retrieval.reranker | Loading reranker model 'BAAI/bge-reranker-base' on device 'cpu'...
+2026-08-27 12:00:48 | INFO     | sentence_transformers.base.model | No modules.json found for BAAI/bge-reranker-base, initializing a new CrossEncoder model.
+2026-08-27 12:00:56 | INFO     | app.retrieval.reranker | Reranker ready.
+2026-08-27 12:00:56 | INFO     | app.llm.llm_service | GroqLLM initialized with model 'openai/gpt-oss-20b'
+2026-08-27 12:00:56 | INFO     | app.rag.dependencies | RAG components loaded successfully.
+2026-08-27 12:00:56 | INFO     | app.api.app | Loading ingestion dependencies...
+2026-08-27 12:00:56 | INFO     | app.api.ingestion_dependencies | Loading ingestion components...
+2026-08-27 12:00:56 | INFO     | app.embeddings.embedding_service | Loading embedding model 'BAAI/bge-base-en-v1.5' on device 'cpu'...
+2026-08-27 12:00:57 | INFO     | sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-base-en-v1.5.
+2026-08-27 12:01:04 | INFO     | app.embeddings.embedding_service | Embedding model ready.
+2026-08-27 12:01:04 | INFO     | app.services.document_registry | Loaded document registry: 76 entrie(s).
+2026-08-27 12:01:04 | INFO     | app.api.ingestion_dependencies | Ingestion components loaded successfully.
+2026-08-27 12:01:04 | INFO     | app.api.app | Application startup complete.
+2026-08-27 12:01:42 | INFO     | app.api.routes | Question received: what to do if you get sick
+2026-08-27 12:01:42 | INFO     | app.retrieval.retriever | Retrieved 10 candidate(s) for query: what to do if you get sick
+2026-08-27 12:01:47 | INFO     | app.retrieval.reranker | Reranked 10 candidate(s) down to top 5.
+2026-08-27 12:01:47 | INFO     | app.llm.llm_service | Groq generated a 605-character response.
+2026-08-27 12:01:47 | INFO     | app.rag.rag_pipeline | Timings for 'what to do if you get sick' -> retrieve: 139ms, rerank: 4843ms, generate: 844ms, total: 5826ms
+2026-08-27 12:01:47 | INFO     | app.api.routes | Answered with 5 source(s) for question: what to do if you get sick
+2026-08-27 12:01:47 | INFO     | app.api.app | POST /ask -> 200 (5834.8ms)
