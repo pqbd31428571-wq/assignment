@@ -5,6 +5,10 @@ import requests
 API_URL = "http://127.0.0.1:8000"
 
 
+# --------------------------------------------------
+# PAGE CONFIGURATION
+# --------------------------------------------------
+
 st.set_page_config(
     page_title="Document RAG Assistant",
     layout="wide"
@@ -47,9 +51,7 @@ if st.button("Process Documents"):
         successful = 0
         failed = 0
 
-        for index, uploaded_file in enumerate(
-            uploaded_files
-        ):
+        for index, uploaded_file in enumerate(uploaded_files):
 
             try:
 
@@ -74,8 +76,7 @@ if st.button("Process Documents"):
                     result = response.json()
 
                     st.success(
-                        f"✓ {uploaded_file.name} "
-                        f"processed "
+                        f"✓ {uploaded_file.name} processed "
                         f"({result['chunks_indexed']} chunks)"
                     )
 
@@ -94,8 +95,7 @@ if st.button("Process Documents"):
 
                 st.error(
                     f"✗ {uploaded_file.name}: "
-                    f"Could not connect to API. "
-                    f"{exc}"
+                    f"Could not connect to API. {exc}"
                 )
 
             progress.progress(
@@ -106,6 +106,56 @@ if st.button("Process Documents"):
             f"Completed: {successful} successful, "
             f"{failed} failed."
         )
+
+
+# --------------------------------------------------
+# BULK INGESTION
+# --------------------------------------------------
+
+st.subheader("Bulk Document Processing")
+
+st.write(
+    "Process all supported documents already placed "
+    "in the data/raw/ directory."
+)
+
+
+if st.button("Ingest All"):
+
+    with st.spinner(
+        "Scanning data/raw/ and processing documents..."
+    ):
+
+        try:
+
+            response = requests.post(
+                f"{API_URL}/ingest-directory",
+                timeout=3600
+            )
+
+            if response.status_code == 200:
+
+                result = response.json()
+
+                st.success(
+                    f"Found {result['documents_found']} "
+                    f"new document(s), indexed "
+                    f"{result['chunks_indexed']} chunks. "
+                    f"{result['message']}"
+                )
+
+            else:
+
+                st.error(
+                    f"Bulk ingestion failed: "
+                    f"{response.text}"
+                )
+
+        except requests.RequestException as exc:
+
+            st.error(
+                f"Could not connect to FastAPI: {exc}"
+            )
 
 
 st.divider()

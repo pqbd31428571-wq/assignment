@@ -6,6 +6,7 @@ from app.services.indexing_service import IndexingService
 from app.preprocessing.text_cleaner import TextCleaner
 from app.preprocessing.chunker import TextChunker
 from app.embeddings.embedding_service import EmbeddingService
+from app.embeddings.sparse_embedding_service import SparseEmbeddingService
 from app.vectorstore.vector_store import VectorStore
 from app.services.document_registry import DocumentRegistry
 
@@ -32,6 +33,7 @@ class IngestionDependencies:
         )
 
         self.embedding_service = EmbeddingService()
+        self.sparse_embedding_service = SparseEmbeddingService()
         self.vector_store = vector_store
         self.document_registry = DocumentRegistry()
 
@@ -39,6 +41,7 @@ class IngestionDependencies:
             text_cleaner=self.text_cleaner,
             text_chunker=self.text_chunker,
             embedding_service=self.embedding_service,
+            sparse_embedding_service=self.sparse_embedding_service,
             vector_store=self.vector_store,
             document_registry=self.document_registry
         )

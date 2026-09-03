@@ -1,6 +1,7 @@
 import logging
 
 from app.embeddings.embedding_service import EmbeddingService
+from app.embeddings.sparse_embedding_service import SparseEmbeddingService
 from app.vectorstore.vector_store import VectorStore
 from app.retrieval.retriever import Retriever
 from app.retrieval.reranker import Reranker
@@ -20,10 +21,12 @@ class RAGDependencies:
         logger.info("Loading RAG components...")
 
         self.embedding_service = EmbeddingService()
+        self.sparse_embedding_service = SparseEmbeddingService()
         self.vector_store = vector_store
 
         self.retriever = Retriever(
             embedding_service=self.embedding_service,
+            sparse_embedding_service=self.sparse_embedding_service,
             vector_store=self.vector_store
         )
 

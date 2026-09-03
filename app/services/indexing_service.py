@@ -6,6 +6,7 @@ from app.models.document import Document
 from app.preprocessing.text_cleaner import TextCleaner
 from app.preprocessing.chunker import DocumentChunk, TextChunker
 from app.embeddings.embedding_service import EmbeddingService
+from app.embeddings.sparse_embedding_service import SparseEmbeddingService
 from app.vectorstore.vector_store import VectorStore
 from app.services.document_registry import DocumentRegistry
 
@@ -22,12 +23,14 @@ class IndexingService:
         text_cleaner: TextCleaner,
         text_chunker: TextChunker,
         embedding_service: EmbeddingService,
+        sparse_embedding_service: SparseEmbeddingService,
         vector_store: VectorStore,
         document_registry: DocumentRegistry
     ):
         self.text_cleaner = text_cleaner
         self.text_chunker = text_chunker
         self.embedding_service = embedding_service
+        self.sparse_embedding_service = sparse_embedding_service
         self.vector_store = vector_store
         self.document_registry = document_registry
 
@@ -66,8 +69,14 @@ class IndexingService:
             "Embedding %d chunk(s) from %d document(s)...",
             len(pending_chunks), len(pending_docs),
         )
-        embeddings = self.embedding_service.embed_chunks(pending_chunks)
-        self.vector_store.add_chunks(pending_chunks, embeddings)
+        dense_embeddings = self.embedding_service.embed_chunks(pending_chunks)
+        sparse_embeddings = self.sparse_embedding_service.embed_chunks(pending_chunks)
+
+        self.vector_store.add_chunks(
+            pending_chunks,
+            dense_embeddings,
+            sparse_embeddings,
+        )
 
         total_indexed = 0
 

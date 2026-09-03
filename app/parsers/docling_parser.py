@@ -44,7 +44,6 @@ class DoclingParser(BaseParser):
 
         ocr_options = RapidOcrOptions(
             force_full_page_ocr=True,
-            bitmap_area_threshold=1.0,
         )
 
         pdf_pipeline_options = PdfPipelineOptions()
